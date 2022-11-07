@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+ï»¿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -25,22 +25,22 @@ namespace DERS
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
-               AddCookie(x =>
-               {
-                   x.LoginPath = "/Login/GirisYap";
-               }
-           );
-            services.AddAuthenticationCore();
-            //Bu kýsma kadar tanýmlamam
-            services.AddHttpContextAccessor();
-            //Role doðrulamanýn servisini ekliyoruz.
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("Admin",
-                     policy => policy.RequireRole("Admin"));
-            });
-        }
+                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
+                   AddCookie(x =>
+                   {
+                       x.LoginPath = "/Login/GirisYap";
+                   }
+               );
+                services.AddAuthenticationCore();
+                services.AddHttpContextAccessor();
+                //Role doÃ°rulamanÃ½n servisini ekliyoruz.
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("Admin",
+                         policy => policy.RequireRole("Admin"));
+                });
+
+            }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -59,9 +59,8 @@ namespace DERS
             app.UseStaticFiles();
 
             app.UseRouting();
-
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

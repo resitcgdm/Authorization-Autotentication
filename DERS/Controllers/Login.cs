@@ -14,42 +14,61 @@ namespace DERS.Controllers
     public class Login : Controller
     {
 
-        Context c=new Context();
+       
 
 
         [HttpGet]
-        public IActionResult GirisYap()
+        public IActionResult GirisYap(string returnUrl)
         {
+            TempData["returnUrl"] = returnUrl;
             return View();
+
         }
         [HttpPost]
-        public async Task<IActionResult> GirisYap(Admin p)
-        {
-            var information = c.Admins.FirstOrDefault(x => x.Kullanici == p.Kullanici && x.Sifre == p.Sifre);
-            if (information != null)
+        public async Task<IActionResult> GirisYap(Admin pers)
+        {//Bir admin giriş değişkeni tanımlayıp Firstordefault methodu ile kullanıcının girmiş olduğu bilgiyle veritabanındakı adı karşılaştırdaktan sonra
+         //if şartları arasına yapılacakları belirtiyoruz.  
+            Context c = new Context();
+            var admingiris = c.Admins.FirstOrDefault(x => x.Kullanici == pers.Kullanici && x.Sifre == pers.Sifre);
+            if (admingiris != null)//eğer textler boş gelmez ise
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, p.Kullanici),
-                    new Claim(ClaimTypes.Role,p.Sehir)
+                var claims = new List<Claim> // claim ypaısı oluşuyor
+                { new Claim(ClaimTypes.Name,admingiris.Kullanici),
+                 new Claim(ClaimTypes.Role, admingiris.Sehir)
                 };
 
-                var userIdentity = new ClaimsIdentity(claims, "Login");
-                ClaimsPrincipal principal = new ClaimsPrincipal(userIdentity);
 
-                await HttpContext.SignInAsync(principal);
-                return RedirectToAction("Index", "Personel");
+                var useridentity = new ClaimsIdentity(claims, "Login");//identitiy tanımı yapıp loginden aldırıyoruz.
+                ClaimsPrincipal principal = new ClaimsPrincipal(useridentity);//burdaki principal sorgu alanım.
+                                                                              //ve bu alandan loginden gelenleri sorguluyorum.
+                await HttpContext.SignInAsync(principal);//await kullanıp işlem sıramı düzenledim.
+               
+                if (TempData["returnUrl"] != null)
+                {
+                    if (Url.IsLocalUrl(TempData["returnUrl"].ToString()))
+                    {
+                        return Redirect(TempData["returnUrl"].ToString());
+                    }
+                }
+                else
+                {
+                    return RedirectToAction("Index","Home");
+                }
+
             }
+          
             return View();
+
         }
         public IActionResult Index()
         {
             return View();
         }
-        [Authorize(Roles = "Kocaeli")]
+        [Authorize(Roles = "İstanbul")]
         public IActionResult Security()
         {
-            return RedirectToAction("Security");
+            //var value = "Hello admin";
+            return View();
         }
     }
 }
